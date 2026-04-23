@@ -1,0 +1,38 @@
+name: nomads-proxy
+region: nyc  # Change to: ams, sfo, sgp, lon, fra, tor, blr, syd
+
+services:
+  - name: proxy
+    # Replace with your actual GitHub repo after you push
+    github:
+      repo: u10int/nomads-proxy
+      branch: main
+      deploy_on_push: true
+
+    dockerfile_path: Dockerfile
+
+    # Basic plan: $5/mo — plenty for a lightweight proxy
+    # Options: basic-xxs, basic-xs, basic-s, basic-m
+    instance_size_slug: basic-xxs
+    instance_count: 1
+
+    http_port: 3000
+
+    health_check:
+      http_path: /health
+      initial_delay_seconds: 10
+      period_seconds: 30
+      timeout_seconds: 5
+      failure_threshold: 3
+
+    envs:
+      - key: PORT
+        value: "3000"
+      - key: NOMADS_ALLOWED_HOST
+        value: nomads.ncep.noaa.gov
+      - key: REQUEST_TIMEOUT_MS
+        value: "15000"
+      # Lock this down to your frontend's domain once deployed, e.g.:
+      # value: "https://yourapp.com"
+      - key: ALLOWED_ORIGINS
+        value: "*"
